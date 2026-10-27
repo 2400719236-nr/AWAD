@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +22,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    // Each action is authorised in the controller through StudentPolicy
+    // Each action is authorised in the controller through its policy
     Route::resource('students', StudentController::class);
+    Route::resource('courses', CourseController::class);
+    Route::resource('registrations', RegistrationController::class)->only(['index', 'create', 'store', 'destroy']);
 });

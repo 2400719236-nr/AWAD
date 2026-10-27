@@ -13,6 +13,7 @@
                         <th>Title</th>
                         <th>Semester</th>
                         <th>Registered students</th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,9 +23,12 @@
                             <td>{{ $course->title }}</td>
                             <td>{{ $course->semester }}</td>
                             <td>{{ $course->students_count }} / {{ $course->capacity }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('courses.show', $course) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-people"></i> Class list</a>
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="text-center text-muted py-4">No courses have been assigned to you yet.</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-4">No courses have been assigned to you yet.</td></tr>
                     @endforelse
                 </tbody>
             </table>

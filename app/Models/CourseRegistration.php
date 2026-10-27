@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CourseRegistration extends Model
 {
+    public const CURRENT_ACADEMIC_YEAR = '2026/2027';
+
     protected $fillable = [
         'student_id',
         'course_id',

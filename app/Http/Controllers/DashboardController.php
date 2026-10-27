@@ -22,6 +22,7 @@ class DashboardController extends Controller
                 'studentCount' => Student::count(),
                 'courseCount' => Course::count(),
                 'registrationCount' => CourseRegistration::count(),
+                'latestRegistrations' => CourseRegistration::with(['student', 'course'])->latest()->take(5)->get(),
             ]);
         }
 
@@ -31,9 +32,17 @@ class DashboardController extends Controller
             ]);
         }
 
+        $student = $user->student;
+
         return view('dashboard.student', [
-            'student' => $user->student,
-            'courses' => $user->student?->courses()->orderBy('code')->get() ?? collect(),
+            'student' => $student,
+            'courses' => $student?->courses()->orderBy('code')->get() ?? collect(),
+            // Courses this student has not registered for yet
+            'available' => Course::with('lecturer.user')
+                ->withCount('students')
+                ->whereDoesntHave('students', fn ($query) => $query->whereKey($student?->id))
+                ->orderBy('code')
+                ->get(),
         ]);
     }
 }

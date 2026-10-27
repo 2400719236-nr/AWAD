@@ -18,6 +18,20 @@
                             <a class="nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}" href="{{ route('students.index') }}">Students</a>
                         </li>
                     @endcan
+                    @can('view courses')
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}" href="{{ route('courses.index') }}">
+                                {{ auth()->user()->hasRole('lecturer') ? 'My Courses' : 'Courses' }}
+                            </a>
+                        </li>
+                    @endcan
+                    @canany(['view all registrations', 'view own registrations'])
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('registrations.*') ? 'active' : '' }}" href="{{ route('registrations.index') }}">
+                                {{ auth()->user()->can('view all registrations') ? 'Registrations' : 'My Registrations' }}
+                            </a>
+                        </li>
+                    @endcanany
                 @else
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>

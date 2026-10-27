@@ -51,7 +51,7 @@ class AuthenticationTest extends TestCase
     {
         $this->actingAs($this->user('admin@sms.test'))->get('/dashboard')->assertSee('Administrator Dashboard');
         $this->actingAs($this->user('grace.namutebi@sms.test'))->get('/dashboard')->assertSee('BUC3131')->assertDontSee('BUC3133');
-        $this->actingAs($this->user('brian.mugisha@sms.test'))->get('/dashboard')->assertSee('BUC3134')->assertDontSee('BUC3132');
+        $this->actingAs($this->user('brian.mugisha@sms.test'))->get('/dashboard')->assertSee('My registered courses (2)')->assertSee('BUC3134');
     }
 
     public function test_students_cannot_access_other_students_records(): void
