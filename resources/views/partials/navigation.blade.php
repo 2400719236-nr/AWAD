@@ -1,66 +1,70 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand fw-semibold" href="{{ url('/') }}">
-            <i class="bi bi-mortarboard-fill"></i> {{ config('app.name') }}
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+{{-- Sidebar: links are shown according to the user's permissions --}}
+@php($user = auth()->user())
 
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                @auth
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
-                    </li>
-                    @can('view students')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('students.*') ? 'active' : '' }}" href="{{ route('students.index') }}">Students</a>
-                        </li>
-                    @endcan
-                    @can('view courses')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}" href="{{ route('courses.index') }}">
-                                {{ auth()->user()->hasRole('lecturer') ? 'My Courses' : 'Courses' }}
-                            </a>
-                        </li>
-                    @endcan
-                    @canany(['view all registrations', 'view own registrations'])
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('registrations.*') ? 'active' : '' }}" href="{{ route('registrations.index') }}">
-                                {{ auth()->user()->can('view all registrations') ? 'Registrations' : 'My Registrations' }}
-                            </a>
-                        </li>
-                    @endcanany
-                @else
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
-                    </li>
-                @endauth
-            </ul>
+<aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar">
+    <div class="d-flex flex-column h-100 p-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <a href="{{ route('dashboard') }}" class="brand d-flex align-items-center gap-2">
+                <span class="brand-icon"><i class="bi bi-mortarboard-fill"></i></span>
+                <span>SMS Portal</span>
+            </a>
+            <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button>
+        </div>
 
-            <ul class="navbar-nav">
-                @auth
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
-                            <span class="badge bg-light text-primary text-capitalize ms-1">{{ auth()->user()->getRoleNames()->first() }}</span>
+        <nav class="flex-grow-1 overflow-auto">
+            <div class="nav-section">Main</div>
+            <ul class="nav flex-column gap-1">
+                <li>
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                        <i class="bi bi-grid-1x2"></i> Dashboard
+                    </a>
+                </li>
+                @if ($user->student)
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('students.show') ? 'active' : '' }}" href="{{ route('students.show', $user->student) }}">
+                            <i class="bi bi-person-badge"></i> My Profile
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
-                                </form>
-                            </li>
-                        </ul>
                     </li>
-                @else
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-                    </li>
-                @endauth
+                @endif
             </ul>
+
+            <div class="nav-section">{{ $user->hasRole('admin') ? 'Management' : 'Academics' }}</div>
+            <ul class="nav flex-column gap-1">
+                @can('view students')
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('students.index', 'students.create', 'students.edit') || ($user->hasRole('admin') && request()->routeIs('students.show')) ? 'active' : '' }}"
+                           href="{{ route('students.index') }}">
+                            <i class="bi bi-people"></i> Students
+                        </a>
+                    </li>
+                @endcan
+                @can('view courses')
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}" href="{{ route('courses.index') }}">
+                            <i class="bi bi-journal-bookmark"></i> {{ $user->hasRole('lecturer') ? 'My Courses' : 'Courses' }}
+                        </a>
+                    </li>
+                @endcan
+                @canany(['view all registrations', 'view own registrations'])
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('registrations.*') ? 'active' : '' }}" href="{{ route('registrations.index') }}">
+                            <i class="bi bi-card-checklist"></i> {{ $user->can('view all registrations') ? 'Registrations' : 'My Registrations' }}
+                        </a>
+                    </li>
+                @endcanany
+            </ul>
+        </nav>
+
+        <div class="user-box p-3 mt-3 d-flex align-items-center gap-2">
+            <span class="avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+            <div class="flex-grow-1 lh-sm overflow-hidden">
+                <div class="text-white small fw-semibold text-truncate">{{ $user->name }}</div>
+                <div class="small text-capitalize">{{ $user->getRoleNames()->first() }}</div>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-link text-white" title="Logout"><i class="bi bi-box-arrow-right"></i></button>
+            </form>
         </div>
     </div>
-</nav>
+</aside>

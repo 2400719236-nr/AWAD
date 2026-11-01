@@ -5,10 +5,20 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StudentController;
+use App\Models\Course;
+use App\Models\CourseRegistration;
+use App\Models\Lecturer;
+use App\Models\Student;
 use Illuminate\Support\Facades\Route;
 
+// Public landing page with a few live totals
 Route::get('/', function () {
-    return view('home');
+    return view('home', ['stats' => [
+        'students' => Student::count(),
+        'courses' => Course::count(),
+        'lecturers' => Lecturer::count(),
+        'registrations' => CourseRegistration::count(),
+    ]]);
 })->name('home');
 
 // Guests only: the login form
